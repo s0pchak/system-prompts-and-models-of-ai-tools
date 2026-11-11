@@ -97,6 +97,22 @@ Optional body keys: `folder_name`, `external_id`, `documents[].dynamic`.
 Without tags you can pass `documents[].fields[]` with `areas` (`x,y,w,h,page`),
 but tags are far easier. Confirm the response has non-empty `fields`.
 
+### 2b. House workflow: master template → per-counterparty copy → send
+- **Masters** are named `[Template] <Agreement name>` (e.g. `[Template] Rhode
+  Labs Referral Agreement`). Never send from a master and never edit one for a
+  single deal.
+- For each counterparty, clone the master:
+  `POST /templates/{master_id}/clone` with
+  `{"name": "<Agreement name> – <Counterparty>", "folder_name": "<e.g. Referral Partners>"}`.
+  Signers see this name at the top of the signing page and in emails.
+- Make the deal-specific changes on that copy, normally at send time: the
+  sender-owned pre-fills (fee etc., `readonly`) and the signer names/emails.
+  If a deal needs different contract wording, edit a copy of the master's DOCX
+  and upload it as that counterparty's template instead of cloning.
+- Preview (3b) and send (3) from the copy, never the master.
+- Find a master with `GET /templates?q=[Template]`. Find a partner's copy with
+  `GET /templates?q=<Counterparty>` or `?folder=Referral Partners`.
+
 ### 3. Send a template for signature
 ```json
 {
