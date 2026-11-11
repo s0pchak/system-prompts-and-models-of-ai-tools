@@ -58,7 +58,7 @@ Tag pitfalls (learned the hard way):
   directly (python-docx misses text inside content controls). Never modify the
   user's original file.
 - Blanks that the *sender* decides (fees, prices, dates) must not be left for the
-  signer: assign them to a role but pre-fill them at send time with a per-submitter
+  signer: assign them to the sender's own role and pre-fill them on that submitter with
   `fields: [{"name": ..., "default_value": ..., "readonly": true}]`. Ask the user
   for any such value; never guess a commercial term.
 - After uploading, verify the response: role list = intended signers only, and
@@ -111,6 +111,29 @@ ds.sh POST /submissions /tmp/ds_send.json
   to lock pre-filled values, `completed: true` to auto-sign the user's own side.
 - Response is an array of submitters: report `submission_id`, each `email`,
   `status`, and `embed_src` (the signing link).
+
+### 3b. Preview before sending (offer this every time)
+1. Re-fetch the template (`GET /templates/{id}`) right before previewing or
+   sending. The user may have edited it in the DocuSeal web app (renamed it,
+   moved a field to another role), and old assumptions will break the send.
+2. Create a **dry-run** submission from the exact send body, changed only to
+   `"send_email": false` and placeholder emails (`preview-<role>@example.com`).
+   Never use the real signers' emails for a preview.
+3. Give the user each role's `embed_src` link so they can see exactly what each
+   signer sees. Tell them **not to sign** in the preview: a completed one counts
+   as a signed document.
+4. Optionally screenshot the first signer's page with Playwright and check that
+   pre-filled values actually render.
+5. Archive the preview (`DELETE /submissions/{id}`) before the real send.
+
+Pre-fill gotchas:
+- `"Unknown field: X"` in a submitter's `fields[]` means X belongs to a
+  **different role**. Put the pre-fill on the submitter that owns the field.
+- A field whose value the sender decides (fee, price) should belong to the
+  sender's role, pre-filled with `default_value` + `readonly: true`. Earlier
+  signers still see it on the document.
+- `GET /submissions/{id}` doesn't show pre-filled values before signing, so
+  check the rendered page instead.
 
 ### 4. One-off contract without saving a template
 `POST /submissions/docx` (or `/submissions/pdf`, `/submissions/html`) with
