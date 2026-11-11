@@ -61,6 +61,16 @@ Tag pitfalls (learned the hard way):
   signer: assign them to the sender's own role and pre-fill them on that submitter with
   `fields: [{"name": ..., "default_value": ..., "readonly": true}]`. Ask the user
   for any such value; never guess a commercial term.
+- **Inline fields (a number mid-sentence, like a fee %):** a box's width and the
+  gap it leaves in the text both come from the tag's length, so a normal-size tag
+  leaves a huge hole. Put the tag in its own run at tiny type
+  (`<w:sz w:val="1"/>`), raised with `<w:position w:val="12"/>`, no spacer, and
+  size the box explicitly:
+  `{{Referral Fee;role=RhodeLabs;width=16;height=12;font_size=10}}`.
+  Then measure the template PDF (box vs. the next word's x/y, using pymupdf)
+  and screenshot a dry-run before calling it done.
+- Date fields default to DD/MM/YYYY. For US contracts, add
+  `preferences.format: "MM/DD/YYYY"` to each date field in the send body.
 - After uploading, verify the response: role list = intended signers only, and
   every field has the right name, type and role. If wrong, fix, re-upload, and
   archive the bad template (`DELETE /templates/{id}`).
