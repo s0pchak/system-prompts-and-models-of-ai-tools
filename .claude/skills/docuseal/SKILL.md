@@ -11,7 +11,9 @@ skill, e.g. `bash .claude/skills/docuseal/scripts/ds.sh GET /templates`
 (or `~/.claude/skills/docuseal/scripts/ds.sh` if installed globally).
 
 ## Setup (one time, by the user)
-- `DOCUSEAL_API_KEY` must be exported in the user's shell (DocuSeal console → API).
+- Local: `DOCUSEAL_API_KEY` exported in the user's shell (DocuSeal console → API).
+- Claude Code cloud: the key is saved as a network secret for `api.docuseal.com`
+  (header `X-Auth-Token`); the proxy injects it, so no variable is needed.
 - `DOCUSEAL_API_URL` only if the account is on the EU server: `https://api.docuseal.eu`.
 - Never print, echo, log or write the key into any file. If it is missing,
   tell the user to set it; do not ask them to paste it into chat.
