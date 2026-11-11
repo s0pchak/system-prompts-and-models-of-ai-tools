@@ -118,6 +118,19 @@ but tags are far easier. Confirm the response has non-empty `fields`.
 - Find a master with `GET /templates?q=[Template]`. Find a partner's copy with
   `GET /templates?q=<Counterparty>` or `?folder=Referral Partners`.
 
+### 2c. Updating a master to a new version of the contract
+1. Cancel (archive) any pending submissions that used the old wording, if the
+   user asks. Check `opened_at`/`completed_at` first and report them.
+2. Diff the new DOCX text against the previous version and tell the user what
+   changed.
+3. Re-tag it. For the Rhode Labs Referral Agreement, run
+   `python3 scripts/tag_referral_agreement.py <clean.docx> <tagged.docx>`.
+   It applies every tag, sizes the fee box, and shrinks the paragraphs after the
+   final table. Upload it as `[Template] <name>` and check the page count, the
+   fee box against the "%", and the roles and fields.
+4. Archive the old master and every per-counterparty copy made from it, and
+   re-clone fresh copies for any deals that are still in progress.
+
 ### 3. Send a template for signature
 ```json
 {
