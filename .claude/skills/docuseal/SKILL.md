@@ -23,6 +23,12 @@ skill, e.g. `bash .claude/skills/docuseal/scripts/ds.sh GET /templates`
   Before any `POST /submissions*` that emails people, show the user a summary
   (document, each signer's role/name/email, signing order, pre-filled values,
   email subject) and get an explicit "yes". For dry runs use `"send_email": false`.
+- **Notifications are always on.** Every send uses `"send_email": true` (top
+  level and never overridden per submitter), so each signer is emailed when it
+  is their turn and all parties get the signed copy on completion. Only turn
+  emails off if the user explicitly asks, or for a dry run they approved.
+- Signing order: default `"order": "preserved"`, with `submitters` listed in
+  the order the user wants them to sign (first signer first).
 - Write request bodies to a temp JSON file (or pipe via `-`), never inline huge base64.
 - IDs: templates and submissions have integer `id`s. Look them up; don't guess.
 
@@ -42,6 +48,22 @@ Fields come from text tags written into the document itself:
 `signature`, `initials`, `date`, `number`, `checkbox`, `select`, `phone`,
 `image`, `stamp`. DOCX also supports `[[variable]]` placeholders filled per send
 via `variables`. Tags are removed from the rendered document.
+
+Tag pitfalls (learned the hard way):
+- **Role names must have no spaces** (`role=RhodeLabs`, not `role=Rhode Labs`).
+  DocuSeal drops spaces wherever a tag wraps onto a new line, silently creating
+  an extra signer role. Keep tags short so they fit on one line.
+- **Existing contracts with blank lines** (`By: ______`): copy the DOCX and
+  replace each underscore run with a tag by editing `word/document.xml`
+  directly (python-docx misses text inside content controls). Never modify the
+  user's original file.
+- Blanks that the *sender* decides (fees, prices, dates) must not be left for the
+  signer: assign them to a role but pre-fill them at send time with a per-submitter
+  `fields: [{"name": ..., "default_value": ..., "readonly": true}]`. Ask the user
+  for any such value; never guess a commercial term.
+- After uploading, verify the response: role list = intended signers only, and
+  every field has the right name, type and role. If wrong, fix, re-upload, and
+  archive the bad template (`DELETE /templates/{id}`).
 
 When drafting a contract for the user, generate a DOCX (python-docx or the docx
 skill) containing these tags — e.g. a signature block per party:
