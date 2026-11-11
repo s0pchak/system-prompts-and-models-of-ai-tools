@@ -69,6 +69,11 @@ Tag pitfalls (learned the hard way):
   `{{Referral Fee;role=RhodeLabs;width=16;height=12;font_size=10}}`.
   Then measure the template PDF (box vs. the next word's x/y, using pymupdf)
   and screenshot a dry-run before calling it done.
+- **Blank last page:** Word always adds an empty paragraph after a final table.
+  If the table ends near the bottom margin, that paragraph becomes a blank page.
+  Check the page count of the template PDF. To fix it, make that paragraph 1pt
+  (`<w:spacing w:before="0" w:after="0" w:line="20" w:lineRule="exact"/>` and
+  `<w:sz w:val="2"/>`) and re-upload.
 - Date fields default to DD/MM/YYYY. For US contracts, add
   `preferences.format: "MM/DD/YYYY"` to each date field in the send body.
 - After uploading, verify the response: role list = intended signers only, and
